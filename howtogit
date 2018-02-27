@@ -1,0 +1,14 @@
+6  cd Desktop/
+7  git clone https://github.com/McKensy/Raspberry-Pi-Kickstarter.git
+8  cd Raspberry-Pi-Kickstarter/
+9  ls
+10  git status 
+11  nano README.md 
+12  git status 
+13  git add .
+14  git status 
+16  git config --global user.email "awesomemac2000@gmail.com"
+17  git config --global user.name "McKensy"
+18  git commit -m "Changed README.md"
+20  git log
+22  git push origin master
