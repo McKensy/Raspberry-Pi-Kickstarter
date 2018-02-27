@@ -7,7 +7,7 @@
 12  git status 
 13  git add .
 14  git status 
-16  git config --global user.email "awesomemac2000@gmail.com"
+16  git config --global user.email "33714767+McKensy@users.noreply.github.com"
 17  git config --global user.name "McKensy"
 18  git commit -m "Changed README.md"
 20  git log
