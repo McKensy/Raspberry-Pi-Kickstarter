@@ -1,18 +1,19 @@
 #!/bin/bash
 
-# Aufruf:		sudo ./raspi_ks.sh
+# Command:		sudo ./raspi_ks.sh
 #
-# Beschreibung:		Ein Kickstart-Script für mein Raspberry Pi
-#			Es enthält folgende Programme:
-#				-Raspicast (Video, Foto und YouTube streaming)
+# Description:	A Kickstart-script for my Raspberry Pi
+#				The script installs the following programs:
+#				-Raspicast (Video, Photo and YouTube streaming)
 #				-Parsec (Gamestreaming)
-#				-Teamviewer (Fernsteuerung)
-# Vorraussetzung:
-#	Internet verbindung
-# 	Any Ubuntu 16.04 LTS version
+#				-Teamviewer (Remote control)
+# Requirements:
+#				-Internet connection
+# 				-Any Ubuntu 16.04 LTS version
 #
-# Fehler codes mit case: 1 standart, 13 no sudo, 100 no internet.
-# Dokumentiere was es macht, was ihnegeit, was usegeit:
+# TODO:
+# Document common errors with solutions: 1 standart, 13 no sudo, 100 no internet.
+# Document everything: What it does, the input and the output.
 
 ### Variables ###
 
@@ -20,7 +21,7 @@ WHITE='\033[0m'
 LCYAN='\033[1;36m'
 RED='\033[0;31m'
 LGREEN='\033[1;32m'
-LOGFILE='/dev/null' # Standard pfad für 
+LOGFILE='/dev/null' # Standart path for undefined log path
 
 ### Functions ###
 
@@ -28,7 +29,7 @@ LOGFILE='/dev/null' # Standard pfad für
 
 function startscript {
 	echo -e ${LCYAN}"Raspberry Kickstart Setup"${WHITE}
-	if [ "$EUID" -ne 0 ];then 
+	if [ "$EUID" -ne 0 ];then
 		printlog ${RED}"Please run as root! (sudo ./raspi_ks.sh)"${WHITE}
 		exit 13
 	fi
@@ -67,8 +68,8 @@ function installer {
 	if [ $LOGFILE != '/dev/null' ];then
 		printlog "Logfile can be found in $LOGFILE"
 	fi
-	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"	
-	while read uinput; do	
+	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"
+	while read uinput; do
 	case $uinput in
 		Yes | yes | Y | y | ye) menu;;
 		No | no | N | n | exit) exit 0;;
@@ -127,7 +128,7 @@ function uninstaller {
 	cleanup
 	printlog "Uninstallation finished."
 	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"${WHITE}
-	while read uinput; do	
+	while read uinput; do
 	case $uinput in
 		Yes | yes | Y | y | ye | Ja | ja | J | j | Affirmative | affirmative) menu;;
 		No | no | N | n | Nein | nein | Negative | negative | exit ) exit 0;;
@@ -143,7 +144,7 @@ function cleanup {
 	rm teamviewer-rpi.deb >> $LOGFILE 2>&1
 	apt-get -f install -y >> $LOGFILE 2>&1
 	printlog ${LGREEN}"Do you want to return to the main menu? (yes/no)"${WHITE}
-	while read uinput; do	
+	while read uinput; do
 	case $uinput in
 		Yes | yes | Y | y | ye | Ja | ja | J | j | Affirmative | affirmative) menu;;
 		No | no | N | n | Nein | nein | Negative | negative | exit ) exit 0;;
@@ -185,7 +186,7 @@ function status {
 			errorcode $?
 		else #Dependency error
 			sudo apt-get upgrade -y >> $LOGFILE 2>&1
-			if [ $? -ge 1 ];then 
+			if [ $? -ge 1 ];then
 					printlog ${RED}"Dependency error detected, installing dependencies..."${WHITE}
 					apt-get update >> $LOGFILE 2>&1
 					apt-get -f install -y >> $LOGFILE 2>&1
@@ -253,7 +254,7 @@ function install_TeamViewer-Host {
 }
 
 function errorcode {
-	printlog $(date "+%d"."%m"."%Y %T"): ${RED} "An error has occured. (ERROR CODE: $1)"${WHITE} | tee -a $LOGFILE 
+	printlog $(date "+%d"."%m"."%Y %T"): ${RED} "An error has occured. (ERROR CODE: $1)"${WHITE} | tee -a $LOGFILE
 
 
 
