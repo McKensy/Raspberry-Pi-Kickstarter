@@ -28,28 +28,28 @@ LOGFILE='/dev/null' # Standart path for undefined log path
 # Start script #
 
 function startscript {
-	echo -e ${LCYAN}"Raspberry Kickstart Setup"${WHITE}
+	printlog "Raspberry Kickstart Setup"
 	if [ "$EUID" -ne 0 ];then
-		printlog ${RED}"Please run as root! (sudo ./raspi_ks.sh)"${WHITE}
+		printlog ${RED}"Please run as root! (sudo ./raspi_ks.sh)"
 		exit 13
 	fi
 	menu
 }
 
 function menu {
-	printlog ${LGREEN}"Enter an option (Install/Uninstall/About/Clean/Exit): "${WHITE}
+	printlog ${LGREEN}"Enter an option (Install/Uninstall/About/Clean/Exit): "
 	read uoption
 	option $uoption
 }
 
 function option {
 	case $1 in
-		About | about) about;;
-		Install | install) installer;;
-		Uninstall | uninstall) uninstaller;;
-		Clean | clean) cleanup;;
-		Exit | exit) exit 0;;
-		*) printlog ${RED}"Option not found, please try again..."${WHITE};menu;;
+		About | about ) about;;
+		Install | install ) installer;;
+		Uninstall | uninstall ) uninstaller;;
+		Clean | clean ) cleanup;;
+		Exit | exit ) exit 0;;
+		* ) printlog ${RED}"Option not found, please try again...";menu;;
 	esac
 }
 
@@ -71,28 +71,34 @@ function installer {
 	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"
 	while read uinput; do
 	case $uinput in
-		Yes | yes | Y | y | ye) menu;;
-		No | no | N | n | exit) exit 0;;
-		*)printlog ${RED}"Option not found, please try again..."${WHITE};;
+		Yes | yes | Y | y ) menu;;
+		No | no | N | n | Exit | exit ) exit 0;;
+		* )printlog ${RED}"Option not found, please try again...";;
 	esac
 	done
 }
 
 # Logfile setter #
 function setlog {
-	printlog ${LGREEN}"Do you want to log the process?"${WHITE}
+	printlog ${LGREEN}"Do you want to log the process?"
 	read uinput
 	case $uinput in
-		Yes | yes | Y | y | ye | Ja | ja | J | j | Affirmative | affirmative)
-			printlog ${LGREEN}"Insert the absolute path to the log file: "${WHITE}
+		Yes | yes | Y | y )
+			printlog ${LGREEN}"Insert the absolute path to the log file: "
 			read -p "(Example: /tmp/example.log): " LOGFILE
-			printlog "Logfile set in $LOGFILE"
+			printlog ${LGREEN}"Is this the correct path? $LOGFILE"
+			read uinput
+			case $uinput in
+				Yes | yes | Y | y ) printlog "Starting $uoption script, logfile located in $LOGFILE";;
+				No | no | N | n | Exit | exit ) setlog;;
+				* )printlog ${RED}"Option not found, please try again...";;
+			esac
 			;;
-		No | no | N | n | Nein | nein | Negative | negative)
-			printlog ${LCYAN}"Starting $uoption script, no log will be created."${WHITE}
+		No | no | N | n )
+			printlog "Starting $uoption script, no log will be created."
 			;;
-		*)
-			printlog ${RED}"Option not found, please try again..."${WHITE}
+		* )
+			printlog ${RED}"Option not found, please try again..."
 			setlog
 			;;
 	esac
@@ -101,7 +107,7 @@ function setlog {
 # A function to get more information about the script.
 
 function about {
-	printlog ${LCYAN}"This Setup script installs the following programs:"
+	printlog "This Setup script installs the following programs:"
 	printlog "	-Raspicast (libjpeg8-dev & libpng12-dev)"
 	printlog "	-Parsec"
 	printlog "	-TeamViewer Host"
@@ -127,12 +133,12 @@ function uninstaller {
 	printlog "Cleaning up setup files."
 	cleanup
 	printlog "Uninstallation finished."
-	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"${WHITE}
+	printlog -e ${LGREEN}"Do you want to return to the main menu? (yes/no)"
 	while read uinput; do
 	case $uinput in
-		Yes | yes | Y | y | ye | Ja | ja | J | j | Affirmative | affirmative) menu;;
-		No | no | N | n | Nein | nein | Negative | negative | exit ) exit 0;;
-		*)	printlog ${RED}"Option not found, please try again..."${WHITE}
+		Yes | yes | Y | y ) menu;;
+		No | no | N | n | Exit | exit ) exit 0;;
+		* )	printlog ${RED}"Option not found, please try again..."
 	esac
 	done
 }
@@ -143,12 +149,12 @@ function cleanup {
 	rm parsec-rpi.deb >> $LOGFILE 2>&1
 	rm teamviewer-rpi.deb >> $LOGFILE 2>&1
 	apt-get -f install -y >> $LOGFILE 2>&1
-	printlog ${LGREEN}"Do you want to return to the main menu? (yes/no)"${WHITE}
+	printlog ${LGREEN}"Do you want to return to the main menu? (yes/no)"
 	while read uinput; do
 	case $uinput in
-		Yes | yes | Y | y | ye | Ja | ja | J | j | Affirmative | affirmative) menu;;
-		No | no | N | n | Nein | nein | Negative | negative | exit ) exit 0;;
-		*) printlog ${RED}"Option not found, please try again..."${WHITE};;
+		Yes | yes | Y | y ) menu;;
+		No | no | N | n | Exit | exit ) exit 0;;
+		* ) printlog ${RED}"Option not found, please try again...";;
 	esac
 	done
 }
@@ -187,7 +193,7 @@ function status {
 		else #Dependency error
 			sudo apt-get upgrade -y >> $LOGFILE 2>&1
 			if [ $? -ge 1 ];then
-					printlog ${RED}"Dependency error detected, installing dependencies..."${WHITE}
+					printlog ${RED}"Dependency error detected, installing dependencies..."
 					apt-get update >> $LOGFILE 2>&1
 					apt-get -f install -y >> $LOGFILE 2>&1
 				else
@@ -254,7 +260,7 @@ function install_TeamViewer-Host {
 }
 
 function errorcode {
-	printlog $(date "+%d"."%m"."%Y %T"): ${RED} "An error has occured. (ERROR CODE: $1)"${WHITE} | tee -a $LOGFILE
+	printlog $(date "+%d"."%m"."%Y %T"): ${RED} "An error has occured. (ERROR CODE: $1)" | tee -a $LOGFILE
 
 
 
