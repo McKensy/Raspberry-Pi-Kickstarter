@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Command:		sudo ./raspi_ks.sh
+# Command:	sudo ./raspi_ks.sh
 #
 # Description:	A Kickstart-script for my Raspberry Pi
 #				The script installs the following programs:
@@ -11,9 +11,6 @@
 #				-Internet connection
 # 				-Any Ubuntu 16.04 LTS version
 #
-# TODO:
-# Document common errors with solutions: 1 standart, 13 no sudo, 100 no internet.
-# Document everything: What it does, the input and the output.
 
 ### Variables ###
 
@@ -100,7 +97,7 @@ function setlog {
 					printlog "Starting $uoption script, logfile located in $LOGFILE"
 					;;
 				No | no | N | n | Exit | exit ) 
-					rm $LOGFILE -f
+					rm "$LOGFILE" -f
 					LOGFILE='/dev/null'
 					setlog
 					;;
