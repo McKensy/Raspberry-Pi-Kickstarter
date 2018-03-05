@@ -6,7 +6,7 @@
 #
 # Description:	
 #	This is a Bash-script or Kickstart-script for my Raspberry Pi.
-#	Currently it is configured to work on any Ubuntu 16.04 LTS versions.
+#	Currently it is configured to work on any Ubuntu 16.04 LTS version.
 #	The script installs the following programs:
 #	-Raspicast (Video, Photo and YouTube streaming)
 #	-Parsec (Gamestreaming)
@@ -15,7 +15,7 @@
 #	The options are About, Install, Uninstall, Clean and Exit:
 #	About: About is a small description of the current script.
 #	Install: Installs all mentioned programs.
-#	Uninstall: Uninstall all mentioned programs.
+#	Uninstall: UninstallS all mentioned programs.
 #	Clean: Removes downloaded files and installs any pending dependencies.
 #	Exit: Exits the program.
 #
@@ -25,7 +25,7 @@
 # 	-Any Ubuntu 16.04 LTS version
 #	-20 Megabytes of space
 #
-# Author: Jordan Mac Kensy (McKensy)
+# Author: Jordan Mac Kensy (https://github.com/McKensy/Raspberry-Pi-Kickstarter)
 #
 ###
 
@@ -64,14 +64,15 @@ function startscript {
 ## Main menu ##
 # This is the main menu showed after the first function.
 # The user can choose between: About, Install, Uninstall, Clean and Exit.
-# Cases doesn't matter aslong the user types the word correctly.
+# Cases don't matter aslong the user types the word correctly.
 # The user can choose after an installation, uninstallation or cleanup to go back to the menu.
 
 function menu {
-	printlog "${LGREEN}" "Enter an option (Install/Uninstall/About/Clean/Exit): "
+	printlog "${LGREEN}" "Enter an option (Install/Uninstall/Git/About/Clean/Exit): "
 	read -r uoption
 	case $uoption in
 		About | about ) about;;
+		Misc | misc ) misc;;
 		Install | install ) installer;;
 		Uninstall | uninstall ) uninstaller;;
 		Clean | clean ) cleanup;;
@@ -157,7 +158,6 @@ function setlog {
 ## About ##
 
 # This is a function to get more information about the script.
-# I didn't use "\n" because it is easier to read when editing the script.
 
 function about {
 	printlog "${LCYAN}" "This is a Bash-script or Kickstart-script for my Raspberry Pi."
@@ -175,9 +175,42 @@ function about {
 	menu
 }
 
+## Git omxiv ##
+
+# This function installs omxiv from HaarigerHarald's github repository.
+
+function misc {
+	printlog "${LCYAN}" "Cloning omxiv from github.com/HaarigerHarald/omxiv..."
+	git clone https://github.com/HaarigerHarald/omxiv ~/omxiv
+	cd omxiv
+	printlog "${LCYAN}" "Installing Raspicast..."
+	make ilclient
+	make -j4
+	make install
+	check $?
+	printlog "${LCYAN}" "Enabling secure shell..."
+	systemctl enable ssh
+	check $?
+	printlog "${LCYAN}" "Starting secure shell..."
+	systemctl start ssh
+	check $?
+	printlog "${LCYAN}" "Possible IP-Adresses:"
+	ifconfig | grep "inet addr:*"
+	printlog "${LCYAN}" "Setting GPU-Memory..."
+	if { cat /boot/config 2>&1; } | tee -a "$LOGFILE" | grep -q "gpu_mem=64"; then
+		sed -i "s/gpu_mem=64/gpu_mem=192/" /boot/config.txt
+		check $?
+		printlog "${LCYAN}" "GPU-Memory set to 192MB."
+	else 
+		printlog "${LCYAN}" "GPU-Memory already set."
+	fi
+	printlog "${LCYAN}" "Miscellaneous settings set and installed."
+	menu
+}
+
 ## Program installations ##
 
-# Here are the seperate installations for every program.
+# Here are the separate installations for every program.
 # The basic idea behind all installations is:
 # -Let the user know what is happening with an echo.
 # -Install the program if it isn't installed already.
@@ -223,12 +256,12 @@ function install_libpng12-dev {
 }
 
 # Parsec
-# Downloads the latest version of Parsec and installs it if it isn't installed already.
+# Downloads and installs the latest version of Parsec it if it isn't installed already.
 
 function install_Parsec {
 	printlog "${LCYAN}" "Downloading Parsec..."
-	wget -nv -a "$LOGFILE" https://s3.amazonaws.com/parsec-build/package/parsec-linux.deb -O parsec-rpi.deb # For Linux Ubuntu
-	#wget -nv -a "$LOGFILE" https://s3.amazonaws.com/parsec-build/package/parsec-rpi.deb -O parsec-rpi.deb # For RasPi
+	#wget -nv -a "$LOGFILE" https://s3.amazonaws.com/parsec-build/package/parsec-linux.deb -O parsec-rpi.deb # For Linux Ubuntu
+	wget -nv -a "$LOGFILE" https://s3.amazonaws.com/parsec-build/package/parsec-rpi.deb -O parsec-rpi.deb # For RasPi
 	exitstatus "$?"
 	printlog "${LCYAN}" "Installing Parsec..."
 	dpkg -i parsec-rpi.deb >> "$LOGFILE" 2>&1
@@ -236,12 +269,12 @@ function install_Parsec {
 }
 
 # TeamViewer
-# Downloads the latest version of TeamViewer-Host and installs it if it isn't installed already.
+# Downloads and installs the latest version of TeamViewer-Host it if it isn't installed already.
 
 function install_TeamViewer-Host {
 	printlog "${LCYAN}" "Downloading TeamViewer..."
-	wget -nv -a "$LOGFILE" https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O teamviewer-rpi.deb # for Linux Ubuntu
-	#wget -nv -a "$LOGFILE" https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb -O teamviewer-rpi.deb # for RasPi
+	#wget -nv -a "$LOGFILE" https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O teamviewer-rpi.deb # for Linux Ubuntu
+	wget -nv -a "$LOGFILE" https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb -O teamviewer-rpi.deb # for RasPi
 	printlog "${LCYAN}" "Installing TeamViewer..."
 	dpkg -i teamviewer-rpi.deb >> "$LOGFILE" 2>&1
 	exitstatus "$?" "TeamViewer-Host"
